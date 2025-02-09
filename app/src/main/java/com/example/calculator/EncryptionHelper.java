@@ -11,7 +11,7 @@ import java.security.SecureRandom;
 
 public class EncryptionHelper {
 
-    private static final String ALGORITHM = "AES";
+    public static final String ALGORITHM = "AES";
     private static final int KEY_SIZE = 256;
 
     // Generate AES Key (You can save this securely for later use)

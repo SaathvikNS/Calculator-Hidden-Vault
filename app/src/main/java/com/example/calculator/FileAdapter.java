@@ -11,6 +11,9 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
+
 import java.util.List;
 
 public class FileAdapter extends RecyclerView.Adapter<FileAdapter.FileViewHolder> {
@@ -31,7 +34,6 @@ public class FileAdapter extends RecyclerView.Adapter<FileAdapter.FileViewHolder
     @Override
     public FileViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_file, parent, false);
-        Log.d("FileAdapter", "ViewHolder created");
         return new FileViewHolder(view);
     }
 
@@ -47,10 +49,14 @@ public class FileAdapter extends RecyclerView.Adapter<FileAdapter.FileViewHolder
         String fileType = fileItem.getFileType() != null ? fileItem.getFileType() : "unknown";
         holder.fileType.setText(fileType);
 
-        // Set thumbnail
+        // Set thumbnail using Glide for better performance
         Uri thumbnailUri = fileItem.getThumbnailUri();
         if (thumbnailUri != null) {
-            holder.thumbnail.setImageURI(thumbnailUri);
+            Glide.with(holder.thumbnail.getContext())
+                    .load(thumbnailUri)
+                    .diskCacheStrategy(DiskCacheStrategy.ALL)
+                    .placeholder(R.drawable.ic_file) // Default icon while loading
+                    .into(holder.thumbnail);
         } else {
             holder.thumbnail.setImageResource(R.drawable.ic_file); // Default icon if no thumbnail
         }
@@ -60,14 +66,14 @@ public class FileAdapter extends RecyclerView.Adapter<FileAdapter.FileViewHolder
         // Set click listener for normal click
         holder.itemView.setOnClickListener(v -> {
             if (onItemClickListener != null) {
-                onItemClickListener.onItemClick(fileItem); // Call listener for item click
+                onItemClickListener.onItemClick(fileItem);
             }
         });
 
         // Set long-click listener for item long press
         holder.itemView.setOnLongClickListener(v -> {
             if (onItemLongClickListener != null) {
-                onItemLongClickListener.onItemLongClick(fileItem); // Call listener for long click
+                onItemLongClickListener.onItemLongClick(fileItem);
             }
             return true; // Returning true to indicate long click is handled
         });

@@ -67,6 +67,7 @@ public class LoginActivity extends AppCompatActivity {
             prefs.edit().putString(KEY_PIN, hashedPin).putBoolean(KEY_PIN_SET, true).apply();
 
             Toast.makeText(this, "Password set successfully!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "You can access the vault by long pressing the '=' button", Toast.LENGTH_LONG).show();
 
             // Proceed to MainActivity after setting the password
             startActivity(new Intent(this, MainActivity.class));
