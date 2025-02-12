@@ -4,22 +4,37 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/blac_shade_1"
     tools:context=".VaultActivity">
 
     <!-- App Bar -->
-    <androidx.appcompat.widget.Toolbar
-        android:id="@+id/vaultToolbar"
+    <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:title="Secret Vault"
-        app:popupTheme="@style/ThemeOverlay.AppCompat.Light" />
+        android:text="Secret Vault"
+        android:textSize="20sp"
+        android:paddingVertical="10sp"
+        android:gravity="center"
+        android:textStyle="bold"
+        android:fontFamily="sans-serif-black"
+        android:textColor="#d5d5d5"
+        android:background="@color/black_shade_3"
+        app:layout_constraintTop_toTopOf="parent"/>
+
+<!--    <androidx.appcompat.widget.Toolbar-->
+<!--        android:id="@+id/vaultToolbar"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:title="Secret Vault"-->
+<!--        app:popupTheme="@style/ThemeOverlay.AppCompat.Dark"-->
+<!--        android:background="@color/black_shade_3"/>-->
 
     <!-- RecyclerView to show files -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerViewVault"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginTop="56dp"
+        android:layout_marginTop="70sp"
         android:scrollbars="vertical" />
 
     <!-- Floating Action Button (FAB) to add files -->

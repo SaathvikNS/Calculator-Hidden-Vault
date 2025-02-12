@@ -1,31 +1,60 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:gravity="center"
-    android:orientation="vertical">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:background="@color/blac_shade_1">
 
     <TextView
-        android:layout_width="wrap_content"
+        android:id="@+id/tit"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Vault Login/Setup"
-        android:textSize="20sp" />
+        android:text="Vault"
+        android:textSize="30sp"
+        android:paddingVertical="10sp"
+        android:gravity="center"
+        android:textStyle="bold"
+        android:fontFamily="sans-serif-black"
+        android:textColor="#d5d5d5"
+        android:background="@color/black_shade_3"
+        app:layout_constraintTop_toTopOf="parent"/>
 
     <EditText
         android:id="@+id/passwordEditText"
-        android:layout_width="200dp"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:inputType="textPassword" />
+        android:layout_below="@+id/tit"
+        android:layout_gravity="center"
+        android:layout_marginHorizontal="30sp"
+        android:layout_marginTop="200sp"
+        android:hint="Passcode"
+        android:inputType="textPassword"
+        android:textAlignment="center"
+        android:textColor="#efefef"
+        android:textColorHint="#888"
+        app:layout_constraintHorizontal_bias="0.266"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tit" />
 
     <Button
         android:id="@+id/setPasswordButton"
-        android:layout_width="wrap_content"
+        android:layout_width="200sp"
         android:layout_height="wrap_content"
-        android:text="Set" />
+        android:text="Set Passcode"
+        app:layout_constraintTop_toBottomOf="@+id/passwordEditText"
+        app:layout_constraintLeft_toLeftOf="@+id/passwordEditText"
+        app:layout_constraintRight_toRightOf="@+id/passwordEditText"
+        android:layout_marginTop="30sp"/>
 
     <Button
         android:id="@+id/loginButton"
-        android:layout_width="wrap_content"
+        android:layout_width="200sp"
         android:layout_height="wrap_content"
-        android:text="Login" />
+        android:text="Login"
+        app:layout_constraintTop_toBottomOf="@+id/passwordEditText"
+        app:layout_constraintLeft_toLeftOf="@+id/passwordEditText"
+        app:layout_constraintRight_toRightOf="@+id/passwordEditText"
+        android:layout_marginTop="30sp"/>
 
-</LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>
