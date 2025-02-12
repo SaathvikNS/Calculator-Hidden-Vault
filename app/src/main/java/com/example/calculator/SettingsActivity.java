@@ -33,6 +33,5 @@ public class SettingsActivity extends AppCompatActivity {
         }
 
 
-        // ... (Add listeners for other settings options later)
     }
 }

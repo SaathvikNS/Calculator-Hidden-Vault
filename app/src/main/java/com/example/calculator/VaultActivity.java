@@ -50,7 +50,6 @@ public class VaultActivity extends AppCompatActivity {
         recyclerView = findViewById(R.id.recyclerViewVault);
         FloatingActionButton fabAddFile = findViewById(R.id.fabAddFile);
 
-        // Initialize the list of files
         fileItemList = new ArrayList<>();
         fileAdapter = new FileAdapter(fileItemList, new FileAdapter.OnItemClickListener() {
             @Override
@@ -91,20 +90,18 @@ public class VaultActivity extends AppCompatActivity {
                     Toast.makeText(VaultActivity.this, "File doesn't exist", Toast.LENGTH_SHORT).show();
                 }
             }
-        }, new FileAdapter.OnItemLongClickListener() {  // Correct method signature for long-click listener
+        }, new FileAdapter.OnItemLongClickListener() {
             @Override
             public void onItemLongClick(FileItem fileItem) {
-                showFileOptionsDialog(fileItem);  // Long click handling
+                showFileOptionsDialog(fileItem);
             }
         });
 
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(fileAdapter);
 
-        // Load actual saved files
-        loadVaultFiles();  // ⬅️ This will load real encrypted files
+        loadVaultFiles();
 
-        // FAB action to add a file
         fabAddFile.setOnClickListener(v -> openFilePicker());
     }
 
@@ -116,15 +113,12 @@ public class VaultActivity extends AppCompatActivity {
             File decryptedFile = new File(getCacheDir(), "decrypted_" + System.currentTimeMillis());
 
             try {
-                // Retrieve the stored secret key
-                SecretKey secretKey = EncryptionHelper.generateKey(); // Load actual stored key
+                SecretKey secretKey = EncryptionHelper.generateKey();
                 EncryptionHelper.decryptFile(encryptedFile, decryptedFile, secretKey);
 
-                // Open the decrypted file
                 openFile(decryptedFile);
 
-                // Schedule deletion after viewing (optional)
-                new Handler().postDelayed(() -> decryptedFile.delete(), 60000); // Delete after 1 min
+                new Handler().postDelayed(() -> decryptedFile.delete(), 60000);
 
             } catch (Exception e) {
                 e.printStackTrace();
@@ -135,22 +129,21 @@ public class VaultActivity extends AppCompatActivity {
 
     private void openFile(File file) {
         try {
-            Uri fileUri = FileProvider.getUriForFile(this, "com.example.calculator.fileprovider", file); // EXACTLY the same as in manifest
+            Uri fileUri = FileProvider.getUriForFile(this, "com.example.calculator.fileprovider", file);
             Intent intent = new Intent(Intent.ACTION_VIEW);
 
-            String mimeType = getMimeType(file); // Get MIME type (see helper function below)
+            String mimeType = getMimeType(file);
             intent.setDataAndType(fileUri, mimeType);
 
-            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION); // VERY IMPORTANT
+            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
             startActivity(Intent.createChooser(intent, "Open with"));
 
         } catch (Exception e) {
             e.printStackTrace();
-            Toast.makeText(this, "Error opening file: " + e.getMessage(), Toast.LENGTH_SHORT).show(); // Handle errors
+            Toast.makeText(this, "Error opening file: " + e.getMessage(), Toast.LENGTH_SHORT).show();
         }
     }
 
-    // Helper function to get MIME type (Important!)
     private String getMimeType(File file) {
         String type = null;
         String extension = MimeTypeMap.getSingleton().getExtensionFromMimeType(file.getName());
@@ -206,13 +199,12 @@ public class VaultActivity extends AppCompatActivity {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Rename File");
 
-        // Create input field with the current file name
         EditText input = new EditText(this);
-        input.setText(fileItem.getFileName());  // Display current original name
+        input.setText(fileItem.getFileName());
         builder.setView(input);
 
         builder.setPositiveButton("Rename", (dialog, which) -> {
-            String newFileName = input.getText().toString().trim();  // Get new file name
+            String newFileName = input.getText().toString().trim();
 
             if (newFileName.isEmpty()) {
                 Toast.makeText(this, "File name cannot be empty", Toast.LENGTH_SHORT).show();
@@ -222,10 +214,8 @@ public class VaultActivity extends AppCompatActivity {
             File vaultDir = new File(getFilesDir(), "vault");
 
             Log.d("Rename", "name is: " + fileItem.getFile().getName());
-            // Extract encrypted filename from full path
             String encryptedFileName = new File(String.valueOf(fileItem.getFile())).getName();
 
-            // Locate the metadata file
             File metadataFile = new File(vaultDir, encryptedFileName + ".meta");
 
             Log.d("RenameDebug", "Looking for metadata file: " + metadataFile.getAbsolutePath());
@@ -236,20 +226,16 @@ public class VaultActivity extends AppCompatActivity {
             }
 
             try {
-                // Read the metadata file
                 List<String> metadataLines = new ArrayList<>(Files.readAllLines(metadataFile.toPath()));
 
                 if (!metadataLines.isEmpty()) {
-                    metadataLines.set(0, newFileName); // Update the first line with the new name
+                    metadataLines.set(0, newFileName);
                 }
 
-                // Write updated metadata back to the file
                 Files.write(metadataFile.toPath(), metadataLines);
 
-                // Update FileItem with the new display name
                 fileItem.setFileName(newFileName);
 
-                // Refresh UI
                 fileAdapter.notifyDataSetChanged();
 
                 Toast.makeText(this, "File renamed successfully", Toast.LENGTH_SHORT).show();
@@ -270,7 +256,6 @@ public class VaultActivity extends AppCompatActivity {
 
         if (encryptedFile.exists()) {
             try {
-                // Retrieve the stored secret key from the 4th line of the metadata file
                 File metadataFile = new File(vaultDir, fileItem.getFile().getName() + ".meta");
 
                 Log.d("unhidelogs", "shitA: metadata file found");
@@ -280,36 +265,29 @@ public class VaultActivity extends AppCompatActivity {
                     return;
                 }
 
-                // Read the metadata file
                 List<String> metadataLines = Files.readAllLines(metadataFile.toPath());
                 Log.d("unhidelogs", "size: " + metadataLines.size());
 
-                if (metadataLines.size() > 3) { // Ensure there are at least 4 lines
-                    String base64SecretKey = metadataLines.get(3).trim(); // 4th line contains the secret key (Base64 encoded)
+                if (metadataLines.size() > 3) {
+                    String base64SecretKey = metadataLines.get(3).trim();
                     Log.d("unhidelogs", "Base64: " + base64SecretKey);
-                    // Decode the Base64 string to get the byte array
                     byte[] keyBytes = Base64.decode(base64SecretKey, Base64.DEFAULT);
 
-                    // Generate SecretKey using the decoded bytes
                     SecretKey secretKey = new SecretKeySpec(keyBytes, EncryptionHelper.ALGORITHM);
                     Log.d("unhidelogs", "Unhide time secret key: " + secretKey);
 
-                    // SAF: Create a new file in the Downloads folder
                     File downloadsDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), fileItem.getFileName());
                     if (!downloadsDir.exists()) {
                         downloadsDir.createNewFile();
                     }
 
-                    // Decrypt the file using SAF-created file
                     EncryptionHelper.decryptFile(encryptedFile, downloadsDir, secretKey);
 
-                    // Remove the encrypted file from the vault
                     if (encryptedFile.delete()) {
                         File metadataFileToDelete = new File(vaultDir, fileItem.getFile().getName() + ".meta");
                         if (metadataFileToDelete.exists()) {
                             metadataFileToDelete.delete();
                         }
-                        // Remove from file list and notify adapter
                         fileItemList.remove(fileItem);
                         fileAdapter.notifyDataSetChanged();
                         Toast.makeText(this, "File unhidden successfully", Toast.LENGTH_SHORT).show();
@@ -334,15 +312,14 @@ public class VaultActivity extends AppCompatActivity {
         }
 
         File[] files = vaultDir.listFiles();
-        fileItemList.clear(); // Clear the list before reloading
+        fileItemList.clear();
 
         if (files != null) {
             for (File file : files) {
                 if (file.getName().endsWith(".meta")) {
-                    continue;  // Skip metadata files
+                    continue;
                 }
 
-                // Read metadata for the encrypted file
                 File metadataFile = new File(vaultDir, file.getName() + ".meta");
                 String originalFileName = file.getName();
                 String fileType = "Unknown Type";
@@ -355,27 +332,25 @@ public class VaultActivity extends AppCompatActivity {
                         fis.read(buffer);
                         fis.close();
 
-                        // Extract file name, type, and size from metadata
                         String metadata = new String(buffer);
                         String[] metadataParts = metadata.split("\n");
                         if (metadataParts.length >= 3) {
-                            originalFileName = metadataParts[0];  // Original file name
-                            fileType = metadataParts[1];  // File type
-                            fileSize = metadataParts[2];  // File size
+                            originalFileName = metadataParts[0];
+                            fileType = metadataParts[1];
+                            fileSize = metadataParts[2];
                         }
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
                 }
 
-                // Add the file item to the list, including the actual file reference
                 fileItemList.add(new FileItem(originalFileName, fileType, fileSize, file));
             }
         }
 
         runOnUiThread(() -> {
             System.out.println("Notifying adapter. Total files: " + fileItemList.size());
-            fileAdapter.notifyDataSetChanged();  // Update UI
+            fileAdapter.notifyDataSetChanged();
         });
     }
 
@@ -394,13 +369,13 @@ public class VaultActivity extends AppCompatActivity {
                 e.printStackTrace();
             }
         }
-        return encryptedFile.getName(); // If no metadata, return encrypted name
+        return encryptedFile.getName();
     }
 
 
     private void openFilePicker() {
         Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-        intent.setType("*/*"); // Allows all file types
+        intent.setType("*/*");
         intent.addCategory(Intent.CATEGORY_OPENABLE);
         startActivityForResult(intent, PICK_FILE_REQUEST);
     }
@@ -447,13 +422,12 @@ public class VaultActivity extends AppCompatActivity {
                 vaultDir.mkdir();
             }
 
-            // Retrieve file metadata: name, type, size
             String originalFileName = getFileName(fileUri);
-            String mimeType = getContentResolver().getType(fileUri);  // Get file type
-            String fileSize = getFileSize(fileUri);  // Get file size
+            String mimeType = getContentResolver().getType(fileUri);
+            String fileSize = getFileSize(fileUri);
 
             if (mimeType == null) {
-                mimeType = "*/*"; // Default if type is unknown
+                mimeType = "*/*";
             }
 
             String encryptedFileName = "encrypted_" + System.currentTimeMillis();
@@ -463,38 +437,33 @@ public class VaultActivity extends AppCompatActivity {
             String base64EncodedKey = Base64.encodeToString(secretKey.getEncoded(), Base64.DEFAULT);
             Log.d("unhidelogs", "Savetime Secret key: " + base64EncodedKey);
 
-            // Save metadata: original file name, type, size, and MIME type
             File metadataFile = new File(vaultDir, encryptedFileName + ".meta");
             try (FileOutputStream fos = new FileOutputStream(metadataFile)) {
-                String metadata = originalFileName + "\n" + mimeType + "\n" + fileSize + "\n" + base64EncodedKey; // Include MIME type
+                String metadata = originalFileName + "\n" + mimeType + "\n" + fileSize + "\n" + base64EncodedKey;
                 fos.write(metadata.getBytes());
                 fos.close();
-                Log.d("Metadata", "Metadata written: " + metadata); // Log the metadata
+                Log.d("Metadata", "Metadata written: " + metadata);
             } catch (IOException e) {
                 e.printStackTrace();
             }
 
-            // Temporarily store the file before encryption
             File tempFile = new File(getCacheDir(), "tempFile");
-            try (FileOutputStream outputStream = new FileOutputStream(tempFile)) { // Use try-with-resources
+            try (FileOutputStream outputStream = new FileOutputStream(tempFile)) {
                 byte[] buffer = new byte[1024];
                 int length;
                 while ((length = inputStream.read(buffer)) > 0) {
                     outputStream.write(buffer, 0, length);
                 }
-            } // Resources are automatically closed
-            inputStream.close(); // Close the input stream
+            }
+            inputStream.close();
 
-
-            // Encrypt and save
             EncryptionHelper.encryptFile(tempFile, encryptedFile, secretKey);
             tempFile.delete();
 
-            // Debugging: Log success
             System.out.println("File encrypted and saved as: " + encryptedFile.getAbsolutePath());
 
             runOnUiThread(() -> {
-                loadVaultFiles(); // Refresh UI after saving the file
+                loadVaultFiles();
                 Toast.makeText(this, "File encrypted and saved!", Toast.LENGTH_SHORT).show();
             });
 

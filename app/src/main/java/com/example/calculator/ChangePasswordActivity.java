@@ -46,31 +46,29 @@ public class ChangePasswordActivity extends AppCompatActivity {
                 return;
             }
 
-            if (newPassword.length() < 4) { // Minimum password length
+            if (newPassword.length() < 4) {
                 Toast.makeText(this, "Password must be at least 4 characters", Toast.LENGTH_SHORT).show();
                 return;
             }
 
             String storedPin = prefs.getString(KEY_PIN, "");
 
-            if (TextUtils.isEmpty(storedPin)) { // Should not happen, but good to check
+            if (TextUtils.isEmpty(storedPin)) {
                 Toast.makeText(this, "No password is set!", Toast.LENGTH_SHORT).show();
-                finish(); // Or navigate back to the appropriate activity
+                finish();
                 return;
             }
 
-            // Verify current password:
             if (!BCrypt.checkpw(currentPassword, storedPin)) {
                 Toast.makeText(this, "Incorrect current password", Toast.LENGTH_SHORT).show();
                 return;
             }
 
-            // Hash and store the new password:
-            String hashedPin = BCrypt.hashpw(newPassword, BCrypt.gensalt()); // Hash the password
+            String hashedPin = BCrypt.hashpw(newPassword, BCrypt.gensalt());
             prefs.edit().putString(KEY_PIN, hashedPin).apply();
 
             Toast.makeText(this, "Password changed successfully!", Toast.LENGTH_SHORT).show();
-            finish(); // Go back to SettingsActivity
+            finish();
         });
     }
 }

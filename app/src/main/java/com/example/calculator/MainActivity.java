@@ -112,29 +112,24 @@ public class MainActivity extends AppCompatActivity {
         bfact.setOnClickListener(v -> calculateUnary("fact"));
 
         bequal.setOnClickListener(v -> {
-            // If it's a long press, trigger the vault login
             if (isLongPressed) {
-                // Reset the long press flag after triggering the vault login
                 isLongPressed = false;
 
                 boolean pin = prefs.getBoolean(KEY_PIN_SET, false);
                 if (pin) {
-                    // If PIN is set, proceed with vault login
                     Intent intent = new Intent(MainActivity.this, LoginActivity.class);
                     startActivity(intent);
                 } else {
-                    // Show message if PIN isn't set
                     Toast.makeText(MainActivity.this, "Please set a password first in settings.", Toast.LENGTH_SHORT).show();
                 }
-                return; // Return to prevent calculator evaluation on long press
+                return;
             }
 
-            // Regular calculator evaluation (if not a long press)
             String str = tvMain.getText().toString();
             try {
                 double result = evaluate(str);
-                tvMain.setText(String.format("%.8f", result)); // Display result
-                tvsec.setText(str); // Display equation
+                tvMain.setText(String.format("%.8f", result));
+                tvsec.setText(str);
             } catch (ArithmeticException e) {
                 showError("Arithmetic Error: " + e.getMessage());
             } catch (NumberFormatException e) {
@@ -146,8 +141,8 @@ public class MainActivity extends AppCompatActivity {
 
 
         bequal.setOnLongClickListener(v -> {
-            isLongPressed = true; // Set flag indicating a long press
-            return true; // Return true to handle long press
+            isLongPressed = true;
+            return true;
         });
 
         bac.setOnClickListener(v -> {
@@ -227,7 +222,6 @@ public class MainActivity extends AppCompatActivity {
         return fact;
     }
 
-    // Function to evaluate expressions
     public double evaluate(String str) {
         return new Object() {
             int pos = -1;
@@ -299,7 +293,7 @@ public class MainActivity extends AppCompatActivity {
                     else if (func.equals("log")) x = Math.log10(x);
                     else if (func.equals("ln")) x = Math.log(x);
                     else throw new RuntimeException("Unknown function: " + func);
-                } else if (ch == 'π' || ch == 'π'){ //Added pi
+                } else if (ch == 'π' || ch == 'π'){
                     x = Math.PI;
                     nextChar();
                 }
